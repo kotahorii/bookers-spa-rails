@@ -9,34 +9,16 @@ class Api::V1::LikesController < ApplicationController
 
   def create
     is_matched = false
-
     active_like = Like.find_or_initialize_by(like_params)
-    passive_like = Like.find_by(
-      from_user_id: active_like.to_user_id,
-      to_user_id: active_like.from_user_id
-    )
+    passive_like = passive_like(active_like)
 
     if passive_like
-      chat_room = ChatRoom.create
-
-      ChatRoomUser.find_or_create_by(
-        chat_room_id: chat_room.id,
-        user_id: active_like.from_user_id
-      )
-
-      ChatRoomUser.find_or_create_by(
-        chat_room_id: chat_room.id,
-        user_id: passive_like.from_user_id
-      )
-
+      create_chat_room
       is_matched = true
     end
 
-    if active_like.save
-      render json: { status: 200, like: active_like, is_matched: is_matched }
-    else
-      render json: { status: 500, message: '作成に失敗しました。'}
-    end
+    data = render_data(active_like, is_matched)
+    render json: data
   end
 
   private

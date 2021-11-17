@@ -4,11 +4,11 @@ class Api::V1::ChatRoomsController < ApplicationController
   def index
     chat_rooms = []
 
-    current_api_v1_user.chat_rooms.order('created_at DESC').each do |chat_room|
+    current_api_v1_user.chat_rooms.order("created_at DESC").each do |chat_room|
       chat_rooms << {
         chat_room: chat_room,
-        other_user: chat_room.users.where.not(id: current_api_v1_user)[0],
-        last_message: chat_room.message[-1]
+        other_user: chat_room.users.where.not(id: current_api_v1_user.id)[0],
+        last_message: chat_room.messages[-1]
       }
     end
 
@@ -17,7 +17,7 @@ class Api::V1::ChatRoomsController < ApplicationController
 
   def show
     other_user = @chat_room.users.where.not(id: current_api_v1_user.id)[0]
-    messages = @chat_room.message.order('created_at ASC')
+    messages = @chat_room.messages.order('created_at ASC')
 
     render json: { status: 200, other_user: other_user, messages: messages }
   end

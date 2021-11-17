@@ -3,13 +3,10 @@ class Api::V1::LikesController < ApplicationController
     render json: {
       status: 200,
       active_likes: current_api_v1_user.active_likes,
-      passive_likes: current_api_v1_user.passive_likes
     }
   end
 
   def create
-    is_matched = false
-
     active_like = Like.find_or_initialize_by(like_params)
     passsive_like = Like.find_by(
       from_user_id: active_like.to_user_id,
@@ -28,12 +25,10 @@ class Api::V1::LikesController < ApplicationController
         chat_room_id: chat_room.id,
         user_id: passsive_like.from_user_id
       )
-
-      is_matched = true
     end
 
     if active_like.save
-      render json: { status: 200, like: active_like, is_matched: is_matched }
+      render json: { status: 200, message: 'いいねを作成しました。' }
     else
       render json: { status: 500, message: "作成に失敗しました" }
     end
